@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="a3_debugging:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/a3_debugging_jar</output-path>
+    <root id="archive" name="a3_debugging.jar">
+      <element id="module-output" name="a3_debugging" />
+    </root>
+  </artifact>
+</component>
