@@ -1,17 +1,18 @@
 package streams;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class StreamDemo {
     public static void show() {
         List<Movie> movies = List.of(
-                new Movie("b", 10),
-                new Movie("b", 10),
-                new Movie("a", 20),
-                new Movie("c", 30)
+                new Movie("b", 10, Genre.THRILLER),
+                new Movie("d", 10, Genre.COMEDY),
+                new Movie("a", 20, Genre.ACTION),
+                new Movie("c", 30, Genre.ACTION)
         );
 
         // Imperative programming
@@ -94,10 +95,68 @@ public class StreamDemo {
                 .forEach(System.out::println);
 
         //
-        var result = movies.stream()
+        Movie result = movies.stream()
                 .max(Comparator.comparing(movie -> movie.getLikes()))
                 .get();
-        System.out.println(result);
+        System.out.println(result.getTitle());
+
+        // Reduction
+        Optional<Integer> sum = movies.stream()
+                .map(movie -> movie.getLikes())
+                .reduce((a, b) -> a + b);
+        System.out.println(sum.orElse(0));
+
+        // Collectors
+        Map<String, Integer> resultM = movies.stream()
+                .filter(movie -> movie.getLikes() > 10)
+                .collect(Collectors.toMap(m -> m.getTitle(), m -> m.getLikes()));
+        System.out.println(resultM);
+
+        System.out.println();
+
+        IntSummaryStatistics resultSummaryStast = movies.stream()
+                .filter(movie -> movie.getLikes() > 10)
+                .collect(Collectors.summarizingInt(Movie::getLikes));
+        System.out.println(resultSummaryStast);
+
+        System.out.println();
+
+        String join = movies.stream()
+                .filter(movie -> movie.getLikes() > 10)
+                .map(Movie::getTitle)
+                        .collect(Collectors.joining(", "));
+        System.out.println(join);
+
+        // GROUPING
+        var resultGenre = movies.stream()
+//                .collect(Collectors.groupingBy(Movie::getGenre));
+                .collect(Collectors.groupingBy(Movie::getGenre,Collectors.counting()));
+        System.out.println(resultGenre);
+
+        System.out.println();
+
+        var resultCategory = movies.stream()
+                        .collect(Collectors.groupingBy(
+                                Movie::getGenre,
+                                Collectors.mapping(
+                                        Movie::getTitle,
+                                        Collectors.joining(", "))));
+
+        System.out.println(resultCategory);
+
+        System.out.println();
+
+        // PARTITIONING
+        Map<Boolean, String> resultPartitioning = movies.stream().collect(Collectors.partitioningBy(
+                m -> m.getLikes() > 20,
+                Collectors.mapping(Movie::getTitle,
+                        Collectors.joining(", "))));
+        System.out.println(resultPartitioning);
+
+        System.out.println();
+
+        // PRIMITIVE STREAM
+        IntStream.rangeClosed(1,6).forEach(item-> System.out.print(item+" "));
 
 
     }
